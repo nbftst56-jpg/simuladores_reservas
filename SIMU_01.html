@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Diárias</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f0f2f5;
+      color: #333;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #00796b;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    input, select {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #00796b;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      flex: 1 1 auto;
+      padding: 12px;
+      background: #00796b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s, transform 0.2s, opacity 0.3s;
+      min-width: 150px;
+    }
+    button:hover:not(:disabled) {
+      background: #004d40;
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    button i {
+      margin-right: 8px;
+    }
+    #resultado {
+      margin-top: 20px;
+      padding: 20px;
+      background: #e0f7fa;
+      border-radius: 8px;
+      border: 1px solid #00796b;
+      line-height: 1.6;
+    }
+    #resultado h3 {
+      color: #004d40;
+      margin-top: 0;
+    }
+    #clienteInfo {
+      margin-top: 15px;
+      padding: 15px;
+      background: #e9f5f5;
+      border: 1px solid #00796b;
+      border-radius: 8px;
+      display: none;
+      line-height: 1.6;
+    }
+    hr {
+      border: 0;
+      border-top: 1px solid #b2dfdb;
+      margin: 15px 0;
+    }
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1000; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgba(0,0,0,0.6); 
+        padding-top: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto; 
+        padding: 20px;
+        border: 1px solid #888;
+        width: 90%;
+        max-width: 550px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        position: relative;
+    }
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        position: absolute;
+        top: 10px;
+        right: 20px;
+    }
+    .close-button:hover,
+    .close-button:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        font-size: 14px;
+    }
+    th {
+        background-color: #e0f2f1;
+        font-weight: bold;
+    }
+    @media (max-width: 600px) {
+      .button-group button {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Simulador de Diárias</h2>
+
+    <div class="input-group">
+      <label for="fileClientes">Carregar Lista de Clientes (arquivo .txt):</label>
+      <input type="file" id="fileClientes" accept=".txt">
+    </div>
+    <div class="input-group" id="clienteSelectContainer" style="display:none;">
+      <label for="clienteSelect">Selecionar Cliente:</label>
+      <select id="clienteSelect" onchange="popularDadosCliente()">
+        <option value="">Selecione um cliente...</option>
+      </select>
+    </div>
+    
+    <div id="clienteInfo"></div>
+
+    <div class="input-group">
+      <label for="nome">Nome do Cliente:</label>
+      <input type="text" id="nome">
+    </div>
+    
+    <div class="input-group">
+      <label for="whatsapp">WhatsApp do Cliente:</label>
+      <input type="text" id="whatsapp" placeholder="Ex: 5548999606725">
+    </div>
+
+    <div class="input-group">
+      <label for="checkin">Período de Check-in:</label>
+      <input type="date" id="checkin" min="2025-11-01" max="2026-05-30">
+    </div>
+
+    <div class="input-group">
+      <label for="checkout">Período de Check-out:</label>
+      <input type="date" id="checkout" min="2025-11-01" max="2026-05-30">
+    </div>
+
+    <div class="input-group">
+      <label for="valorMedioDiaria">Valor médio da diária:</label>
+      <input type="number" id="valorMedioDiaria">
+    </div>
+
+    <div class="input-group">
+      <label for="limpeza">Taxa de limpeza:</label>
+      <input type="number" id="limpeza" value="250">
+    </div>
+    
+    <div class="input-group">
+      <label for="taxaExtraMotivo">Taxa extra (justificativa):</label>
+      <input type="text" id="taxaExtraMotivo" placeholder="Ex: Cama extra">
+      <label for="taxaExtra">Valor da Taxa extra:</label>
+      <input type="number" id="taxaExtra" value="0">
+    </div>
+
+    <div class="input-group">
+      <label for="descontoAcrescimo">Desconto/Acréscimo (%):</label>
+      <input type="number" id="descontoAcrescimo" value="0">
+    </div>
+
+    <div class="input-group">
+      <label for="sinal">Sinal (%):</label>
+      <input type="number" id="sinal" value="0" min="0" max="100">
+    </div>
+
+    <div class="input-group">
+      <label for="taxaDolar">Cotação do Dólar (USD→BRL):</label>
+      <input type="number" id="taxaDolar" step="0.0001" value="5.4324">
+      <button onclick="buscarCotacaoDolar()"><i class="fas fa-search-dollar"></i> Buscar Cotação Dólar</button>
+    </div>
+
+    <div class="input-group">
+      <label for="taxaPeso">Cotação do Peso Argentino (ARS→BRL):</label>
+      <input type="number" id="taxaPeso" step="0.0001" value="0.0055">
+      <button onclick="buscarCotacaoPeso()"><i class="fas fa-search-dollar"></i> Buscar Cotação Peso</button>
+    </div>
+
+    <div class="button-group">
+      <button onclick="calcular()"><i class="fas fa-calculator"></i> Calcular</button>
+      <button id="exportarTxtBtn" onclick="exportarTXT()" disabled><i class="fas fa-file-export"></i> Exportar TXT</button>
+      <button id="enviarWhatsAppBtn" onclick="enviarWhatsApp()" disabled><i class="fab fa-whatsapp"></i> Enviar WhatsApp</button>
+      <button onclick="abrirTabela()"><i class="fas fa-table"></i> Tabela de Preços</button>
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="fecharTabela()">&times;</span>
+      <h3>Tabela de Preços (valores em Reais)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Temporada</th>
+            <th>Período</th>
+            <th>AP 06</th>
+            <th>AP 07</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>I. Temporada</td><td>01/11/2025 - 09/12/2025</td><td>R$ 500</td><td>R$ 525</td></tr>
+          <tr><td>P. República</td><td>14/11/2025 - 23/11/2025</td><td>R$ 550</td><td>R$ 577</td></tr>
+          <tr><td>Dezembro</td><td>01/12/2025 - 21/12/2025</td><td>R$ 575</td><td>R$ 603</td></tr>
+          <tr><td>Natal</td><td>22/12/2025 - 27/12/2025</td><td>R$ 725</td><td>R$ 761</td></tr>
+          <tr><td>Ano Novo</td><td>27/12/2025 - 02/01/2026</td><td>R$ 995</td><td>R$ 1044</td></tr>
+          <tr><td>Janeiro</td><td>03/01/2026 - 31/01/2026</td><td>R$ 775</td><td>R$ 813</td></tr>
+          <tr><td>Fevereiro</td><td>01/02/2026 - 28/02/2026</td><td>R$ 750</td><td>R$ 787</td></tr>
+          <tr><td>Carnaval</td><td>13/02/2026 - 19/02/2026</td><td>R$ 850</td><td>R$ 892</td></tr>
+          <tr><td>Março</td><td>01/03/2026 - 27/03/2026</td><td>R$ 550</td><td>R$ 577</td></tr>
+          <tr><td>Páscoa</td><td>28/03/2026 - 03/04/2026</td><td>R$ 575</td><td>R$ 603</td></tr>
+          <tr><td>F. Temporada</td><td>04/04/2026 - 30/05/2026</td><td>R$ 500</td><td>R$ 525</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let clientesData = {};
+
+    document.getElementById('fileClientes').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) {
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const contents = e.target.result;
+        processarClientes(contents);
+      };
+      reader.readAsText(file);
+    });
+
+    function processarClientes(text) {
+      const lines = text.split('\n').filter(line => line.trim() !== '');
+      const clienteSelect = document.getElementById('clienteSelect');
+      const container = document.getElementById('clienteSelectContainer');
+
+      clienteSelect.innerHTML = '<option value="">Selecione um cliente...</option>';
+      clientesData = {};
+
+      if (lines.length > 0) {
+        lines.shift();
+      }
+
+      lines.forEach(line => {
+        const data = line.split('-');
+        if (data.length >= 6) {
+          const cliente = {
+            nome: data[0].trim(),
+            whatsapp: data[1].trim(),
+            pais: data[2].trim(),
+            tempo: data[3].trim(),
+            unidade: data[4].trim(),
+            status: data[5].trim()
+          };
+          
+          if (cliente.nome && cliente.whatsapp) {
+            clientesData[cliente.nome + cliente.whatsapp] = cliente; // Chave única
+            const option = document.createElement('option');
+            option.value = cliente.nome + cliente.whatsapp;
+            option.textContent = `${cliente.nome} (${cliente.pais})`; // Mostra o país para diferenciar
+            clienteSelect.appendChild(option);
+          }
+        }
+      });
+      
+      if (Object.keys(clientesData).length > 0) {
+        container.style.display = 'block';
+      } else {
+        container.style.display = 'none';
+        alert('Nenhum cliente válido encontrado no arquivo.');
+      }
+    }
+
+    function popularDadosCliente() {
+      const clienteId = document.getElementById('clienteSelect').value;
+      const infoDiv = document.getElementById('clienteInfo');
+      const nomeInput = document.getElementById('nome');
+      const whatsappInput = document.getElementById('whatsapp');
+
+      if (clienteId && clientesData[clienteId]) {
+        const cliente = clientesData[clienteId];
+        nomeInput.value = cliente.nome;
+        whatsappInput.value = cliente.whatsapp;
+
+        infoDiv.innerHTML = `
+          <strong>Dados do Cliente:</strong><br>
+          - **Nome:** ${cliente.nome}<br>
+          - **WhatsApp:** ${cliente.whatsapp}<br>
+          - **País:** ${cliente.pais}<br>
+          - **Tempo:** ${cliente.tempo}<br>
+          - **Unidade:** ${cliente.unidade}<br>
+          - **Status:** ${cliente.status}
+        `;
+        infoDiv.style.display = 'block';
+      } else {
+        nomeInput.value = '';
+        whatsappInput.value = '';
+        infoDiv.style.display = 'none';
+        infoDiv.innerHTML = '';
+      }
+    }
+
+    function buscarCotacaoDolar() {
+      const cotacao = 5.4324;
+      document.getElementById('taxaDolar').value = cotacao.toFixed(4);
+      alert(`Cotação do Dólar (USD→BRL) atualizada para R$ ${cotacao.toFixed(4)}.`);
+    }
+
+    function buscarCotacaoPeso() {
+      const cotacao = 0.0055;
+      document.getElementById('taxaPeso').value = cotacao.toFixed(4);
+      alert(`Cotação do Peso Argentino (ARS→BRL) atualizada para R$ ${cotacao.toFixed(4)}.`);
+    }
+
+    function calcular() {
+      const nome = document.getElementById('nome').value;
+      const whatsapp = document.getElementById('whatsapp').value;
+      const checkin = document.getElementById('checkin').value;
+      const checkout = document.getElementById('checkout').value;
+      const valorMedioDiaria = document.getElementById('valorMedioDiaria').value;
+      const limpeza = parseFloat(document.getElementById('limpeza').value);
+      const taxaExtra = parseFloat(document.getElementById('taxaExtra').value);
+      const taxaExtraMotivo = document.getElementById('taxaExtraMotivo').value;
+      const descontoAcrescimo = parseFloat(document.getElementById('descontoAcrescimo').value);
+      const sinalPercent = parseFloat(document.getElementById('sinal').value);
+      const taxaDolar = parseFloat(document.getElementById('taxaDolar').value);
+      const taxaPeso = parseFloat(document.getElementById('taxaPeso').value);
+
+      if (!nome || !whatsapp || !checkin || !checkout || !valorMedioDiaria) {
+        alert("Por favor, preencha todos os campos obrigatórios (Nome, WhatsApp, Datas e Valor da Diária) para realizar o cálculo.");
+        return;
+      }
+
+      const checkinDate = new Date(checkin + 'T00:00:00');
+      const checkoutDate = new Date(checkout + 'T00:00:00');
+      const valorMedioDiariaFloat = parseFloat(valorMedioDiaria);
+      
+      const dias = Math.round((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+      
+      const valorTotalDiarias = valorMedioDiariaFloat * dias;
+      
+      const valorDescontoAcrescimo = valorTotalDiarias * (descontoAcrescimo / 100);
+      const subTotal = valorTotalDiarias + valorDescontoAcrescimo;
+      
+      const valorLiquido = subTotal + limpeza + taxaExtra;
+      
+      const valorSinal = valorLiquido * (sinalPercent / 100);
+      const saldo = valorLiquido - valorSinal;
+
+      const sinalUSD = valorSinal / taxaDolar;
+      const saldoUSD = saldo / taxaDolar;
+      const sinalARS = valorSinal / taxaPeso;
+      const saldoARS = saldo / taxaPeso;
+
+      document.getElementById('resultado').innerHTML = `
+        <h3>Relatório de Simulação</h3>
+        <hr>
+        <strong>Cliente:</strong> ${nome}<br>
+        <strong>WhatsApp:</strong> ${whatsapp}<br>
+        <strong>Período:</strong> ${checkinDate.toLocaleDateString()} → ${checkoutDate.toLocaleDateString()}<br>
+        <strong>Noites:</strong> ${dias}<br>
+        <hr>
+        <strong>Valor médio da diária:</strong> R$ ${valorMedioDiariaFloat.toFixed(2)}<br>
+        <strong>Valor total das diárias:</strong> R$ ${valorTotalDiarias.toFixed(2)}<br>
+        <strong>Desconto/Acréscimo:</strong> R$ ${valorDescontoAcrescimo.toFixed(2)} (${descontoAcrescimo}%)<br>
+        <strong>Taxa de limpeza:</strong> R$ ${limpeza.toFixed(2)}<br>
+        <strong>Taxa extra (${taxaExtraMotivo}):</strong> R$ ${taxaExtra.toFixed(2)}<br>
+        <hr>
+        <strong>Valor Líquido:</strong> R$ ${valorLiquido.toFixed(2)}<br>
+        <strong>Sinal (${sinalPercent}%):</strong> R$ ${valorSinal.toFixed(2)}<br>
+        <strong>Saldo a pagar (no check-in):</strong> R$ ${saldo.toFixed(2)}<br>
+        <hr>
+        <strong>Previsão de Câmbio (valores aproximados):</strong><br>
+        <strong>Cotação do Dólar usada:</strong> R$ ${taxaDolar.toFixed(4)}<br>
+        <strong>Sinal em Dólar:</strong> U$ ${sinalUSD.toFixed(2)}<br>
+        <strong>Saldo em Dólar:</strong> U$ ${saldoUSD.toFixed(2)}<br>
+        <strong>Cotação do Peso Argentino usada:</strong> R$ ${taxaPeso.toFixed(4)}<br>
+        <strong>Sinal em Peso Argentino:</strong> ARS ${sinalARS.toFixed(2)}<br>
+        <strong>Saldo em Peso Argentino:</strong> ARS ${saldoARS.toFixed(2)}<br>
+      `;
+
+      document.getElementById('exportarTxtBtn').disabled = false;
+      document.getElementById('enviarWhatsAppBtn').disabled = false;
+    }
+
+    function exportarTXT() {
+      const nome = document.getElementById('nome').value;
+      const whatsapp = document.getElementById('whatsapp').value;
+      const checkin = document.getElementById('checkin').value;
+      const checkout = document.getElementById('checkout').value;
+      const valorMedioDiaria = document.getElementById('valorMedioDiaria').value;
+      const limpeza = parseFloat(document.getElementById('limpeza').value);
+      const taxaExtra = parseFloat(document.getElementById('taxaExtra').value);
+      const taxaExtraMotivo = document.getElementById('taxaExtraMotivo').value;
+      const descontoAcrescimo = parseFloat(document.getElementById('descontoAcrescimo').value);
+      const sinalPercent = parseFloat(document.getElementById('sinal').value);
+      const taxaDolar = parseFloat(document.getElementById('taxaDolar').value);
+      const taxaPeso = parseFloat(document.getElementById('taxaPeso').value);
+      
+      const checkinDate = new Date(checkin + 'T00:00:00');
+      const checkoutDate = new Date(checkout + 'T00:00:00');
+      const valorMedioDiariaFloat = parseFloat(valorMedioDiaria);
+
+      const dias = Math.round((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+      const valorTotalDiarias = valorMedioDiariaFloat * dias;
+      const valorDescontoAcrescimo = valorTotalDiarias * (descontoAcrescimo / 100);
+      const subTotal = valorTotalDiarias + valorDescontoAcrescimo;
+      const valorLiquido = subTotal + limpeza + taxaExtra;
+      const valorSinal = valorLiquido * (sinalPercent / 100);
+      const saldo = valorLiquido - valorSinal;
+
+      const sinalUSD = valorSinal / taxaDolar;
+      const saldoUSD = saldo / taxaDolar;
+      const sinalARS = valorSinal / taxaPeso;
+      const saldoARS = saldo / taxaPeso;
+
+      const txt = `
+RELATÓRIO DE SIMULAÇÃO
+--------------------
+Cliente: ${nome}
+WhatsApp: ${whatsapp}
+Período: ${checkinDate.toLocaleDateString()} -> ${checkoutDate.toLocaleDateString()}
+Noites: ${dias}
+--------------------
+Valor médio da diária: R$ ${valorMedioDiariaFloat.toFixed(2)}
+Valor total das diárias: R$ ${valorTotalDiarias.toFixed(2)}
+Desconto/Acréscimo: R$ ${valorDescontoAcrescimo.toFixed(2)} (${descontoAcrescimo}%)
+Taxa de limpeza: R$ ${limpeza.toFixed(2)}
+Taxa extra (${taxaExtraMotivo}): R$ ${taxaExtra.toFixed(2)}
+--------------------
+Valor Líquido: R$ ${valorLiquido.toFixed(2)}
+Sinal (${sinalPercent}%): R$ ${valorSinal.toFixed(2)}
+Saldo a pagar (no check-in): R$ ${saldo.toFixed(2)}
+--------------------
+Previsão de Câmbio (valores aproximados):
+Cotação do Dólar usada: R$ ${taxaDolar.toFixed(4)}
+Sinal em Dólar: U$ ${sinalUSD.toFixed(2)}
+Saldo em Dólar: U$ ${saldoUSD.toFixed(2)}
+Cotação do Peso Argentino usada: R$ ${taxaPeso.toFixed(4)}
+Sinal em Peso Argentino: ARS ${sinalARS.toFixed(2)}
+Saldo em Peso Argentino: ARS ${saldoARS.toFixed(2)}
+`;
+      
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Simulacao_${nome.replace(/ /g, '_')}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function enviarWhatsApp() {
+      const nome = document.getElementById('nome').value;
+      const whatsapp = document.getElementById('whatsapp').value;
+      const checkin = document.getElementById('checkin').value;
+      const checkout = document.getElementById('checkout').value;
+      const valorMedioDiaria = document.getElementById('valorMedioDiaria').value;
+      const limpeza = parseFloat(document.getElementById('limpeza').value);
+      const taxaExtra = parseFloat(document.getElementById('taxaExtra').value);
+      const taxaExtraMotivo = document.getElementById('taxaExtraMotivo').value;
+      const descontoAcrescimo = parseFloat(document.getElementById('descontoAcrescimo').value);
+      const sinalPercent = parseFloat(document.getElementById('sinal').value);
+      const taxaDolar = parseFloat(document.getElementById('taxaDolar').value);
+      const taxaPeso = parseFloat(document.getElementById('taxaPeso').value);
+
+      const checkinDate = new Date(checkin + 'T00:00:00');
+      const checkoutDate = new Date(checkout + 'T00:00:00');
+      const valorMedioDiariaFloat = parseFloat(valorMedioDiaria);
+
+      const dias = Math.round((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+      const valorTotalDiarias = valorMedioDiariaFloat * dias;
+      const valorDescontoAcrescimo = valorTotalDiarias * (descontoAcrescimo / 100);
+      const subTotal = valorTotalDiarias + valorDescontoAcrescimo;
+      const valorLiquido = subTotal + limpeza + taxaExtra;
+      const valorSinal = valorLiquido * (sinalPercent / 100);
+      const saldo = valorLiquido - valorSinal;
+
+      const sinalUSD = valorSinal / taxaDolar;
+      const saldoUSD = saldo / taxaDolar;
+      const sinalARS = valorSinal / taxaPeso;
+      const saldoARS = saldo / taxaPeso;
+      
+      const msg = encodeURIComponent(`Olá ${nome}!\n\nConfira a simulação da sua reserva:\n\n*Cliente:* ${nome}\n*WhatsApp:* ${whatsapp}\n*Período:* ${checkinDate.toLocaleDateString()} -> ${checkoutDate.toLocaleDateString()}\n*Noites:* ${dias}\n\n*Valores em Reais:*\n*Valor médio da diária:* R$ ${valorMedioDiariaFloat.toFixed(2)}\n*Total das diárias:* R$ ${valorTotalDiarias.toFixed(2)}\n*Desconto/Acréscimo:* R$ ${valorDescontoAcrescimo.toFixed(2)} (${descontoAcrescimo}%)\n*Taxa de limpeza:* R$ ${limpeza.toFixed(2)}\n*Taxa extra (${taxaExtraMotivo}):* R$ ${taxaExtra.toFixed(2)}\n\n*Valor Líquido:* R$ ${valorLiquido.toFixed(2)}\n*Sinal (${sinalPercent}%):* R$ ${valorSinal.toFixed(2)}\n*Saldo a pagar no Check-in:* R$ ${saldo.toFixed(2)}\n\n*Previsão de Câmbio (valores aproximados):*\n*Cotação do Dólar usada:* R$ ${taxaDolar.toFixed(4)}\n*Sinal em Dólar:* U$ ${sinalUSD.toFixed(2)}\n*Saldo em Dólar:* U$ ${saldoUSD.toFixed(2)}\n*Cotação do Peso Argentino usada:* R$ ${taxaPeso.toFixed(4)}\n*Sinal em Peso Argentino:* ARS ${sinalARS.toFixed(2)}\n*Saldo em Peso Argentino:* ARS ${saldoARS.toFixed(2)}`);
+      
+      const url = `https://wa.me/${whatsapp}?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    function abrirTabela() {
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function fecharTabela() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('modal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Diárias - Versão Completa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding-top: 120px;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+
+    label, input, select {
+      display: block;
+      width: 100%;
+      margin: 12px 0;
+      font-size: 1em;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .result, .table-container {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    
+    td:first-child {
+      text-align: left;
+      padding-left: 12px;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .top-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(to right, #00bcd4, #ffb74d);
+      padding: 15px 20px;
+      color: white;
+      font-family: Arial, sans-serif;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .main-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .highlight {
+      color: #ffe082;
+      font-weight: bold;
+    }
+    
+    .whatsapp-button {
+      background: linear-gradient(to right, #ffb74d, #00bcd4);
+      color: white;
+      padding: 10px 12px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+      margin-top: 8px;
+    }
+
+    .whatsapp-button:hover {
+      background-color: #1ebe5d;
+    }
+
+    .botao-padrao {
+      background: linear-gradient(to right, #00bcd4, #ffb74d);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      height: 40px;
+      line-height: 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .botao-padrao:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .contact-info {
+      display: flex;
+      gap: 10px;
+      margin: 12px 0;
+    }
+    
+    .contact-info input {
+      flex: 1;
+    }
+
+    /* Importação de clientes */
+    .import-section {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #2196f3;
+    }
+
+    .client-selector {
+      margin-top: 10px;
+    }
+
+    /* Mini janela de resultados */
+    .mini-resultado {
+      position: fixed;
+      top: 140px;
+      right: 20px;
+      width: 350px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #fff;
+      border: 2px solid #00bcd4;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      z-index: 999;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .mini-resultado-header {
+      background: linear-gradient(135deg, #00bcd4 0%, #ffb74d 100%);
+      color: white;
+      padding: 12px 15px;
+      border-radius: 10px 10px 0 0;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mini-resultado-content {
+      padding: 15px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .close-mini {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .resultado-detalhado {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .periodo-item {
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border-left: 4px solid #00bcd4;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      font-weight: 500;
+    }
+
+    .periodo-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .total-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border: 2px solid #00bcd4;
+      box-shadow: 0 4px 12px rgba(0,188,212,0.2);
+    }
+
+    .cliente-info {
+      background: linear-gradient(135deg, #00bcd4 0%, #ffb74d 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .checkin-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 15px 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .checkin-item {
+      text-align: center;
+      padding: 10px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .valor-destaque {
+      font-size: 1.3em;
+      color: #00bcd4;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .legenda-cores {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border: 1px solid #dee2e6;
+    }
+
+    .legenda-item {
+      display: inline-block;
+      margin: 5px;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .taxas-extras {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .desconto-section {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .taxa-limpeza {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #00bcd4;
+    }
+
+    /* Calendário visual */
+    .calendar-container {
+      margin: 20px 0;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-top: 10px;
+    }
+
+    .calendar-day {
+      padding: 8px 4px;
+      text-align: center;
+      border: 1px solid #ddd;
+      font-size: 12px;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .calendar-header {
+      font-weight: bold;
+      background: #f0f0f0;
+    }
+
+    .calendar-day.selected {
+      border: 2px solid #00bcd4;
+      font-weight: bold;
+    }
+
+    /* Cores das faixas de preço */
+    .faixa-proc-republica { background-color: #d0ebff; }
+    .faixa-inicio-temporada { background-color: #ffe8cc; }
+    .faixa-dezembro { background-color: #fff3bf; }
+    .faixa-natal { background-color: #e6fcf5; }
+    .faixa-ano-novo { background-color: #f8f0fc; }
+    .faixa-janeiro { background-color: #cce5ff; }
+    .faixa-fevereiro { background-color: #ffd8a8; }
+    .faixa-carnaval { background-color: #ffe0f0; }
+    .faixa-marco { background-color: #e2f0cb; }
+    .faixa-pascoa { background-color: #f3f0ff; }
+    .faixa-final-temporada { background-color: #f1f3f5; }
+
+    @media (max-width: 768px) {
+      .mini-resultado {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        max-height: none;
+        margin: 20px 0;
+      }
+
+      .top-header {
+        position: static;
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      body {
+        padding-top: 0;
+      }
+
+      .main-title {
+        font-size: 14px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .botao-padrao {
+        width: 100%;
+      }
+
+      .contact-info {
+        flex-direction: column;
+      }
+
+      .checkin-info {
+        grid-template-columns: 1fr;
+      }
+
+      .calendar-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+      }
+
+      .calendar-day {
+        font-size: 10px;
+        padding: 4px 2px;
+        min-height: 25px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="top-header">
+  <div class="main-title"><strong>Residêncial Berkenbrock</strong> - Cachoeira do Bom Jesus - Florianópolis - SC</div>
+  <div><strong>Norberto Berkenbrock Filho</strong> - <span class="highlight">Duplex 06 / 07</span> - [ +55 48 9 9960 6725 ]</div>
+  <a class="whatsapp-button" href="https://wa.me/5548999606725" target="_blank">📲 Fale com NORBERTO pelo WhatsApp</a>
+</div>
+
+<!-- Mini janela de resultados -->
+<div class="mini-resultado" id="miniResultado">
+  <div class="mini-resultado-header">
+    <span>📊 Resultado da Simulação</span>
+    <button class="close-mini" onclick="fecharMiniResultado( )">×</button>
+  </div>
+  <div class="mini-resultado-content" id="miniResultadoContent">
+    <!-- Conteúdo será preenchido dinamicamente -->
+  </div>
+</div>
+
+<h3>📋 Faixas de Preço - Temporada 25/26 - Duplex 06 e 07</h3>
+<div class="table-container">
+  <table role="table">
+    <thead>
+      <tr>
+        <th>Período</th>
+        <th>Início</th>
+        <th>Fim</th>
+        <th>Duplex 06</th>
+        <th>Duplex 07</th>
+      </tr>
+    </thead>
+    <tbody id="priceTableBody"></tbody>
+  </table>
+</div>
+
+<h3>🏡 Simule aqui o Valor de Locação [Obs: Não é Pré Reserva]</h3>
+
+<div class="import-section">
+  <h4>📁 Importar Lista de Clientes (Opcional)</h4>
+  <input type="file" id="fileInput" accept=".txt" onchange="carregarClientes()">
+  <select id="listaClientes" class="client-selector" onchange="preencherCliente()" style="display: none;">
+    <option value="">-- Selecione um cliente --</option>
+  </select>
+  <small style="color: #666;">Formato do arquivo: Nome - WhatsApp - País (uma linha por cliente)</small>
+</div>
+
+<h4>👤 Dados do Cliente:</h4>
+
+<div class="contact-info">
+  <input type="text" id="nomeCliente" placeholder="Nome Completo" required />
+  <input type="tel" id="whatsappCliente" placeholder="WhatsApp (somente números)" required />
+</div>
+
+<label for="startDate">Data de Check-in (14h):</label>
+<input type="date" id="startDate" min="2025-11-01" max="2026-05-30">
+
+<label for="endDate">Data de Check-out (10h):</label>
+<input type="date" id="endDate" min="2025-11-01" max="2026-05-30">
+
+<!-- Calendário visual do período selecionado -->
+<div class="calendar-container" id="calendarContainer" style="display: none;">
+  <div class="legenda-cores">
+    <h4>🎨 Legenda de Cores das Faixas de Preço</h4>
+    <div id="legendaCores"></div>
+  </div>
+  <h4>📅 Calendário do Período Selecionado</h4>
+  <div id="calendarContent"></div>
+</div>
+
+<label for="apartmentType">Tipo de Apartamento:</label>
+<select id="apartmentType">
+  <option value="AP06">Duplex 06</option>
+  <option value="AP07">Duplex 07</option>
+</select>
+
+<label for="numPeople">Número de Pessoas:</label>
+<input type="number" id="numPeople" inputmode="numeric" min="1" max="6" value="1">
+<small id="erroPessoas" style="color: red; display: none;">⚠️ Máximo permitido: 6 pessoas.</small>
+
+<div class="taxa-limpeza">
+  <label for="taxaLimpeza">💰 Taxa de Limpeza/Garantia (valor único):</label>
+  <input type="number" id="taxaLimpeza" step="0.01" placeholder="Ex: 300.00" value="300">
+  <small style="color: #666;">Esta taxa é cobrada apenas uma vez, independente do número de diárias.</small>
+</div>
+
+<label for="descontoEspecial">🎯 Desconto Especial (%):</label>
+<input type="number" id="descontoEspecial" step="0.1" min="0" max="50" placeholder="Ex: 5.0" value="0">
+
+<label for="cotacaoDolar">💵 Cotação do Dólar (Prévia opcional):</label>
+<input type="number" id="cotacaoDolar" step="0.01" placeholder="Valor entre 5.50 - 5.80 Ex: 5.63">
+
+<div class="button-group" style="margin-top: 10px;">
+  <button class="botao-padrao" onclick="calculate()">
+    📟 Calcular
+  </button>
+  <button class="botao-padrao" onclick="exportarResultado()">
+    📁 Exportar TXT
+  </button>
+</div>
+
+<div class="result" id="result"></div>
+
+<div class="button-group" style="margin-top: 10px;">
+  <a id="whatsappLink" class="whatsapp-button" target="_blank" style="display: none;">📲 [ENVIAR] Click aqui e vamos conversar por WhatsApp</a>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Dados de preço, cores e ícones
+    const faixaColors = {
+      "Proc. República": "#d0ebff",
+      "Início Temporada": "#ffe8cc",
+      "Dezembro": "#fff3bf",
+      "Natal": "#e6fcf5",
+      "Ano Novo": "#f8f0fc",
+      "Janeiro": "#cce5ff",
+      "Fevereiro": "#ffd8a8",
+      "Carnaval": "#ffe0f0",
+      "Março": "#e2f0cb",
+      "Páscoa": "#f3f0ff",
+      "Final Temporada": "#f1f3f5"
+    };
+
+    const faixaIcons = {
+      "Proc. República": "🇧🇷",
+      "Início Temporada": "🌅",
+      "Dezembro": "🎄",
+      "Natal": "🎅",
+      "Ano Novo": "🎆",
+      "Janeiro": "🏖️",
+      "Fevereiro": "🌞",
+      "Carnaval": "🎭",
+      "Março": "🌿",
+      "Páscoa": "🐣",
+      "Final Temporada": "🍂"
+    };
+
+    const priceTable = [
+      {label: "Proc. República", minNights: 3, start: "2025-11-14", end: "2025-11-23", ap06: 550, ap07: 577},
+      {label: "Início Temporada", minNights: 3, start: "2025-11-20", end: "2025-12-09", ap06: 500, ap07: 525},
+      {label: "Dezembro", minNights: 3, start: "2025-12-01", end: "2025-12-21", ap06: 575, ap07: 603},
+      {label: "Natal", minNights: 4, start: "2025-12-22", end: "2025-12-27", ap06: 725, ap07: 761},
+      {label: "Ano Novo", minNights: 7, start: "2025-12-27", end: "2026-01-02", ap06: 995, ap07: 1044},
+      {label: "Janeiro", minNights: 5, start: "2026-01-03", end: "2026-01-31", ap06: 775, ap07: 813},
+      {label: "Fevereiro", minNights: 5, start: "2026-02-01", end: "2026-02-28", ap06: 750, ap07: 787},
+      {label: "Carnaval", minNights: 5, start: "2026-02-13", end: "2026-02-19", ap06: 850, ap07: 892},
+      {label: "Março", minNights: 3, start: "2026-03-01", end: "2026-03-27", ap06: 550, ap07: 577},
+      {label: "Páscoa", minNights: 4, start: "2026-03-28", end: "2026-04-03", ap06: 575, ap07: 603},
+      {label: "Final Temporada", minNights: 3, start: "2026-04-04", end: "2026-05-30", ap06: 500, ap07: 525}
+    ];
+
+    // Variável global para armazenar clientes
+    let clientesCarregados = [];
+
+    // Monta a tabela HTML
+    const tbody = document.getElementById("priceTableBody");
+    priceTable.forEach(p => {
+      const bg = faixaColors[p.label] || "#fff";
+      const ic = faixaIcons[p.label] || "";
+      const format = d => {
+        const [y, m, day] = d.split("-");
+        return `${day}/${m}/<strong>${y}</strong>`;
+      };
+      tbody.innerHTML += `
+        <tr style="background:${bg}">
+          <td>${ic} ${p.label}</td>
+          <td>${format(p.start)}</td>
+          <td>${format(p.end)}</td>
+          <td>R$ ${p.ap06.toFixed(2)}</td>
+          <td>R$ ${p.ap07.toFixed(2)}</td>
+        </tr>`;
+    });
+
+    // Gera a legenda de cores
+    const legendaContainer = document.getElementById("legendaCores");
+    let legendaHTML = "";
+    priceTable.forEach(p => {
+      const bg = faixaColors[p.label] || "#fff";
+      const ic = faixaIcons[p.label] || "";
+      legendaHTML += `<span class="legenda-item" style="background-color: ${bg}">${ic} ${p.label}</span>`;
+    });
+    legendaContainer.innerHTML = legendaHTML;
+
+    
+      // Função para carregar clientes do arquivo
+      window.carregarClientes = () => {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target.result;
+          const lines = content.split(/\r?\n/).filter(line => line.trim());
+          
+          clientesCarregados = [];
+          const selectElement = document.getElementById("listaClientes");
+          selectElement.innerHTML = '<option value="">-- Selecione um cliente --</option>';
+          
+          lines.forEach((line, index) => {
+            const parts = line.split('-'); // agora separa por hífen
+            if (parts.length >= 3) {
+              const cliente = {
+                nome: parts[0].trim(),
+                whatsapp: parts[1].trim().replace(/\D/g, ''),
+                pais: parts[2].trim(),
+                extra: parts.slice(3).join('-') // guarda o resto como observação opcional
+              };
+              
+              clientesCarregados.push(cliente);
+              selectElement.innerHTML += `<option value="${index}">${cliente.nome} (${cliente.pais}) - ${cliente.whatsapp}</option>`;
+            }
+          });
+          
+          if (clientesCarregados.length > 0) {
+            selectElement.style.display = 'block';
+          }
+        };
+        
+        reader.readAsText(file);
+      };
+
+    window.preencherCliente = () => {
+      const selectElement = document.getElementById("listaClientes");
+      const selectedIndex = selectElement.value;
+      
+      if (selectedIndex !== "" && clientesCarregados[selectedIndex]) {
+        const cliente = clientesCarregados[selectedIndex];
+        document.getElementById("nomeCliente").value = cliente.nome;
+        document.getElementById("whatsappCliente").value = cliente.whatsapp;
+      }
+    };
+
+    // Função para gerar calendário visual
+    function gerarCalendarioVisual(startDate, endDate) {
+      const container = document.getElementById("calendarContainer");
+      const content = document.getElementById("calendarContent");
+      
+      if (!startDate || !endDate) {
+        container.style.display = "none";
+        return;
+      }
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (start >= end) {
+        container.style.display = "none";
+        return;
+      }
+
+      container.style.display = "block";
+      
+      // Criar calendário mês por mês
+      let html = "";
+      let currentDate = new Date(start);
+      
+      while (currentDate < end) {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        // Cabeçalho do mês
+        const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                           "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        html += `<h5>${monthNames[month]} ${year}</h5>`;
+        
+        // Grid do calendário
+        html += `<div class="calendar-grid">`;
+        
+        // Cabeçalhos dos dias da semana
+        const dayHeaders = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+        dayHeaders.forEach(day => {
+          html += `<div class="calendar-day calendar-header">${day}</div>`;
+        });
+        
+        // Primeiro dia do mês
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        
+        // Espaços vazios antes do primeiro dia
+        for (let i = 0; i < firstDay.getDay(); i++) {
+          html += `<div class="calendar-day"></div>`;
+        }
+        
+        // Dias do mês
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+          const dayDate = new Date(year, month, day);
+          const dayStr = dayDate.toISOString().slice(0, 10);
+          
+          let classes = "calendar-day";
+          let style = "";
+          
+          // Verificar se está no período selecionado
+          if (dayDate >= start && dayDate < end) {
+            classes += " selected";
+            
+            // Encontrar a faixa de preço para este dia
+            const faixa = priceTable.find(f => dayStr >= f.start && dayStr <= f.end);
+            if (faixa) {
+              style = `background-color: ${faixaColors[faixa.label]}`;
+            }
+          }
+          
+          html += `<div class="${classes}" style="${style}">${day}</div>`;
+        }
+        
+        html += `</div>  
+`;
+        
+        // Próximo mês
+        currentDate = new Date(year, month + 1, 1);
+      }
+      
+      content.innerHTML = html;
+    }
+
+    // Atualizar calendário quando as datas mudarem
+    document.getElementById("startDate").addEventListener("change", function() {
+      const endDate = document.getElementById("endDate").value;
+      gerarCalendarioVisual(this.value, endDate);
+    });
+
+    document.getElementById("endDate").addEventListener("change", function() {
+      const startDate = document.getElementById("startDate").value;
+      gerarCalendarioVisual(startDate, this.value);
+    });
+
+    // Função para fechar mini resultado
+    window.fecharMiniResultado = () => {
+      document.getElementById("miniResultado").style.display = "none";
+    };
+
+    // Função principal de cálculo
+    window.calculate = () => {
+      const nome = document.getElementById("nomeCliente").value.trim();
+      const wp = document.getElementById("whatsappCliente").value.trim();
+      
+      if (!nome || !wp) {
+        alert("⚠️ Preencha Nome e WhatsApp.");
+        return;
+      }
+
+      const startDateStr = document.getElementById("startDate").value;
+      const endDateStr = document.getElementById("endDate").value;
+      
+      if (!startDateStr || !endDateStr) {
+        alert("⚠️ Preencha as datas de check-in e check-out.");
+        return;
+      }
+
+      const sd = new Date(startDateStr);
+      const ed = new Date(endDateStr);
+      
+      if (isNaN(sd) || isNaN(ed) || sd >= ed) {
+        alert("⚠️ Datas inválidas. A data de check-out deve ser posterior à data de check-in.");
+        return;
+      }
+
+      const ap = document.getElementById("apartmentType").value;
+      const ppl = +document.getElementById("numPeople").value;
+      const taxaLimpeza = +document.getElementById("taxaLimpeza").value || 0;
+      const descontoPercent = +document.getElementById("descontoEspecial").value || 0;
+      const cot = +document.getElementById("cotacaoDolar").value;
+
+      if (!ppl || ppl < 1) {
+        alert("⚠️ Número de pessoas inválido.");
+        return;
+      }
+      
+      if (ppl > 6) {
+        document.getElementById("erroPessoas").style.display = "block";
+        return;
+      }
+      
+      document.getElementById("erroPessoas").style.display = "none";
+
+      let dias = 0;
+      let valorDiarias = 0;
+      let resumoPorFaixa = {};
+      
+      // Calcular dia por dia
+      for (let d = new Date(sd); d < ed; d.setDate(d.getDate() + 1)) {
+        const day = d.toISOString().slice(0, 10);
+        const faixa = priceTable.find(x => day >= x.start && day <= x.end);
+        
+        if (!faixa) continue;
+        
+        const valorDia = ap === "AP06" ? faixa.ap06 : faixa.ap07;
+        valorDiarias += valorDia;
+        dias++;
+        
+        if (!resumoPorFaixa[faixa.label]) {
+          resumoPorFaixa[faixa.label] = {
+            noites: 0,
+            valorUnitario: valorDia,
+            total: 0,
+            cor: faixaColors[faixa.label],
+            icone: faixaIcons[faixa.label]
+          };
+        }
+        
+        resumoPorFaixa[faixa.label].noites++;
+        resumoPorFaixa[faixa.label].total += valorDia;
+      }
+
+      // Cálculos finais
+      
+// Cálculo da média ponderada por faixa de preço
+let somaPonderada = 0;
+let totalNoites = 0;
+
+for (const faixa of Object.values(resumoPorFaixa)) {
+  somaPonderada += faixa.noites * faixa.valorUnitario;
+  totalNoites += faixa.noites;
+}
+
+const mediaPonderada = totalNoites > 0 ? somaPonderada / totalNoites : 0;
+
+      const subtotal = valorDiarias + taxaLimpeza;
+      const valorDesconto = subtotal * (descontoPercent / 100);
+      const totalFinal = subtotal - valorDesconto;
+      const sinal = totalFinal * 0.20; // 20% de sinal
+
+      // Gerar conteúdo para mini resultado
+      let miniContent = `
+        <strong>Cliente:</strong> ${nome}  
+
+        <strong>WhatsApp:</strong> ${wp}  
+  
+
+        <strong>Check-in:</strong> ${sd.toLocaleDateString('pt-BR')} (14h)  
+
+        <strong>Check-out:</strong> ${ed.toLocaleDateString('pt-BR')} (10h)  
+
+        <strong>Diárias:</strong> ${dias}  
+  
+
+      `;
+
+      // Adicionar detalhes por faixa
+      for (const [faixa, dados] of Object.entries(resumoPorFaixa)) {
+        const faixaData = priceTable.find(f => f.label === faixa);
+        const diaInicio = new Date(faixaData.start).getDate().toString().padStart(2, '0');
+        const mesInicio = (new Date(faixaData.start).getMonth() + 1).toString().padStart(2, '0');
+        const diaFim = new Date(faixaData.end).getDate().toString().padStart(2, '0');
+        const mesFim = (new Date(faixaData.end).getMonth() + 1).toString().padStart(2, '0');
+        
+        miniContent += `<div style="background-color: ${dados.cor}; padding: 5px; margin: 3px 0; border-radius: 4px; font-size: 11px;">
+          ${dados.icone} <strong>${faixa}</strong> (${diaInicio}/${mesInicio}–${diaFim}/${mesFim}): 
+          ${dados.noites} × R$ ${dados.valorUnitario.toFixed(2).replace('.', ',')} = 
+          <strong>R$ ${dados.total.toFixed(2).replace('.', ',')}</strong>
+        </div>`;
+      }
+
+      miniContent += `  
+<strong>Total:</strong> R$ ${valorDiarias.toFixed(2).replace('.', ',')}  
+`;
+      miniContent += `<strong>Média ponderada:</strong> R$ ${mediaPonderada.toFixed(2).replace('.', ',')}  
+`;
+      
+      if (taxaLimpeza > 0) {
+        miniContent += `<strong>Taxa Limpeza:</strong> R$ ${taxaLimpeza.toFixed(2).replace('.', ',')}  
+`;
+      }
+      
+      if (descontoPercent > 0) {
+        miniContent += `<strong>Desconto (${descontoPercent}%):</strong> -R$ ${valorDesconto.toFixed(2).replace('.', ',')}  
+`;
+      }
+      
+      miniContent += `  
+<strong style="color: #00bcd4; font-size: 14px;">Total Final: R$ ${totalFinal.toFixed(2).replace('.', ',')}</strong>  
+`;
+      miniContent += `<strong>Sinal (20%):</strong> R$ ${sinal.toFixed(2).replace('.', ',')}`;
+
+      // Mostrar mini resultado
+      document.getElementById("miniResultadoContent").innerHTML = miniContent;
+      document.getElementById("miniResultado").style.display = "block";
+
+      // Gerar resultado detalhado completo
+      let htmlResultado = `
+        <div class="resultado-detalhado">
+          <div class="cliente-info">
+            <h4>👤 Cliente: ${nome}</h4>
+            <p>WhatsApp: ${wp}</p>
+          </div>
+          
+          <h4>🧾 Resultado</h4>
+          
+          <div class="checkin-info">
+            <div class="checkin-item">
+              <strong>Check-in:</strong>  
+
+              ${sd.toLocaleDateString('pt-BR')} (14h)
+            </div>
+            <div class="checkin-item">
+              <strong>Check-out:</strong>  
+
+              ${ed.toLocaleDateString('pt-BR')} (10h)
+            </div>
+          </div>
+          
+          <p><strong>Diárias (noites):</strong> ${dias}</p>
+          
+          <h5>📊 Detalhamento por período</h5>
+      `;
+
+      // Adicionar detalhes por faixa no formato específico
+      for (const [faixa, dados] of Object.entries(resumoPorFaixa)) {
+        const faixaData = priceTable.find(f => f.label === faixa);
+        const diaInicio = new Date(faixaData.start).getDate().toString().padStart(2, '0');
+        const mesInicio = (new Date(faixaData.start).getMonth() + 1).toString().padStart(2, '0');
+        const diaFim = new Date(faixaData.end).getDate().toString().padStart(2, '0');
+        const mesFim = (new Date(faixaData.end).getMonth() + 1).toString().padStart(2, '0');
+        
+        htmlResultado += `
+          <div class="periodo-item" style="background-color: ${dados.cor}">
+            ${dados.icone} <strong>${faixa}</strong> (${diaInicio}/${mesInicio}–${diaFim}/${mesFim}): 
+            ${dados.noites} noites × R$ ${dados.valorUnitario.toFixed(2).replace('.', ',')} = 
+            <strong>R$ ${dados.total.toFixed(2).replace('.', ',')}</strong>
+          </div>
+        `;
+      }
+
+      htmlResultado += `
+          <div class="total-section">
+            <p class="valor-destaque"><strong>Total:</strong> R$ ${valorDiarias.toFixed(2).replace('.', ',')}</p>
+            <p><strong>Média ponderada:</strong> R$ ${mediaPonderada.toFixed(2).replace('.', ',')}</p>
+          </div>
+      `;
+
+      // Seção de taxas extras
+      if (taxaLimpeza > 0) {
+        htmlResultado += `
+          <div class="taxas-extras">
+            <h5>Taxas Extras</h5>
+            <p><strong>Taxa de Limpeza/Garantia:</strong> R$ ${taxaLimpeza.toFixed(2).replace('.', ',')}</p>
+          </div>
+        `;
+      }
+
+      // Seção de desconto
+      if (descontoPercent > 0) {
+        htmlResultado += `
+          <div class="desconto-section">
+            <p><strong>Desconto Especial (${descontoPercent}%):</strong> -R$ ${valorDesconto.toFixed(2).replace('.', ',')}</p>
+          </div>
+        `;
+      }
+
+      // Total final
+      htmlResultado += `
+          <div class="total-section">
+            <p class="valor-destaque"><strong>Total Pagar:</strong> R$ ${valorDiarias.toFixed(2).replace('.', ',')}`;
+      
+      if (taxaLimpeza > 0) {
+        htmlResultado += ` + R$ ${taxaLimpeza.toFixed(2).replace('.', ',')}`;
+      }
+      
+      if (descontoPercent > 0) {
+        htmlResultado += ` - R$ ${valorDesconto.toFixed(2).replace('.', ',')}`;
+      }
+      
+      htmlResultado += ` = <span style="font-size: 1.4em; color: #00bcd4;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</span></p>
+            <p><strong>Sinal (20%):</strong> R$ ${sinal.toFixed(2).replace('.', ',')}</p>
+      `;
+
+      if (cot > 0) {
+        htmlResultado += `<p><strong>Total em US$:</strong> $${(totalFinal / cot).toFixed(2)} (cotação: R$ ${cot.toFixed(2)})</p>`;
+      }
+
+      htmlResultado += `
+          </div>
+        </div>
+      `;
+
+      document.getElementById("result").innerHTML = htmlResultado;
+      document.getElementById("whatsappLink").style.display = "block";
+      
+      // Atualizar link do WhatsApp
+      atualizarLinkWhatsApp();
+    };
+
+    // Função para atualizar link do WhatsApp
+    function atualizarLinkWhatsApp() {
+      const nome = encodeURIComponent(document.getElementById("nomeCliente").value);
+      const wp = encodeURIComponent(document.getElementById("whatsappCliente").value);
+      const inD = document.getElementById("startDate").value;
+      const outD = document.getElementById("endDate").value;
+      const ppl = document.getElementById("numPeople").value;
+      
+      const msg = [
+        `Olá Norberto! Fiz essa simulação.`,
+        `Cliente: ${nome}`,
+        `WhatsApp: ${wp}`,
+        `Check-in: ${inD} (14h)`,
+        `Check-out: ${outD} (10h)`,
+        `Pessoas: ${ppl}`,
+        `Gostaria de mais informações!`
+      ].join("%0A");
+      
+      document.getElementById("whatsappLink").href = `https://wa.me/5548999606725?text=${msg}`;
+    }
+
+    // Função de exportação detalhada
+    window.exportarResultado = ( ) => {
+      const nome = document.getElementById("nomeCliente").value.trim();
+      const wp = document.getElementById("whatsappCliente").value.trim();
+      const startDateStr = document.getElementById("startDate").value;
+      const endDateStr = document.getElementById("endDate").value;
+      
+      if (!nome || !wp || !startDateStr || !endDateStr) {
+        alert("⚠️ Faça o cálculo primeiro antes de exportar.");
+        return;
+      }
+
+      const sd = new Date(startDateStr);
+      const ed = new Date(endDateStr);
+      const ap = document.getElementById("apartmentType").value;
+      const ppl = +document.getElementById("numPeople").value;
+      const taxaLimpeza = +document.getElementById("taxaLimpeza").value || 0;
+      const descontoPercent = +document.getElementById("descontoEspecial").value || 0;
+      const cot = +document.getElementById("cotacaoDolar").value;
+
+      let dias = 0;
+      let valorDiarias = 0;
+      let resumoPorFaixa = {};
+      
+      // Recalcular para exportação
+      for (let d = new Date(sd); d < ed; d.setDate(d.getDate() + 1)) {
+        const day = d.toISOString().slice(0, 10);
+        const faixa = priceTable.find(x => day >= x.start && day <= x.end);
+        
+        if (!faixa) continue;
+        
+        const valorDia = ap === "AP06" ? faixa.ap06 : faixa.ap07;
+        valorDiarias += valorDia;
+        dias++;
+        
+        if (!resumoPorFaixa[faixa.label]) {
+          resumoPorFaixa[faixa.label] = {
+            noites: 0,
+            valorUnitario: valorDia,
+            total: 0
+          };
+        }
+        
+        resumoPorFaixa[faixa.label].noites++;
+        resumoPorFaixa[faixa.label].total += valorDia;
+      }
+
+      
+// Cálculo da média ponderada por faixa de preço
+let somaPonderada = 0;
+let totalNoites = 0;
+
+for (const faixa of Object.values(resumoPorFaixa)) {
+  somaPonderada += faixa.noites * faixa.valorUnitario;
+  totalNoites += faixa.noites;
+}
+
+const mediaPonderada = totalNoites > 0 ? somaPonderada / totalNoites : 0;
+
+      const subtotal = valorDiarias + taxaLimpeza;
+      const valorDesconto = subtotal * (descontoPercent / 100);
+      const totalFinal = subtotal - valorDesconto;
+      const sinal = totalFinal * 0.20;
+
+      // Gerar conteúdo do arquivo
+      let conteudoArquivo = `🧾 SIMULAÇÃO DE RESERVA - RESIDENCIAL BERKENBROCK
+=================================================
+
+👤 DADOS DO CLIENTE
+Nome: ${nome}
+WhatsApp: ${wp}
+
+📅 DADOS DA RESERVA
+Check-in: ${sd.toLocaleDateString('pt-BR')} (14h)
+Check-out: ${ed.toLocaleDateString('pt-BR')} (10h)
+Apartamento: ${ap === "AP06" ? "Duplex 06" : "Duplex 07"}
+Pessoas: ${ppl}
+Total de Diárias (noites): ${dias}
+
+📊 DETALHAMENTO POR PERÍODO
+`;
+
+      // Adicionar detalhes por faixa
+      for (const [faixa, dados] of Object.entries(resumoPorFaixa)) {
+        const faixaData = priceTable.find(f => f.label === faixa);
+        const diaInicio = new Date(faixaData.start).getDate().toString().padStart(2, '0');
+        const mesInicio = (new Date(faixaData.start).getMonth() + 1).toString().padStart(2, '0');
+        const diaFim = new Date(faixaData.end).getDate().toString().padStart(2, '0');
+        const mesFim = (new Date(faixaData.end).getMonth() + 1).toString().padStart(2, '0');
+        
+        conteudoArquivo += `${faixa} (${diaInicio}/${mesInicio}–${diaFim}/${mesFim}): ${dados.noites} noites × R$ ${dados.valorUnitario.toFixed(2).replace('.', ',')} = R$ ${dados.total.toFixed(2).replace('.', ',')}\n`;
+      }
+
+      conteudoArquivo += `
+💰 RESUMO FINANCEIRO
+Total das Diárias: R$ ${valorDiarias.toFixed(2).replace('.', ',')}
+Média Ponderada: R$ ${mediaPonderada.toFixed(2).replace('.', ',')}
+`;
+
+      if (taxaLimpeza > 0) {
+        conteudoArquivo += `Taxa de Limpeza/Garantia: R$ ${taxaLimpeza.toFixed(2).replace('.', ',')}\n`;
+      }
+
+      if (descontoPercent > 0) {
+        conteudoArquivo += `Desconto Especial (${descontoPercent}%): -R$ ${valorDesconto.toFixed(2).replace('.', ',')}\n`;
+      }
+
+      conteudoArquivo += `
+TOTAL A PAGAR: R$ ${totalFinal.toFixed(2).replace('.', ',')}
+Sinal (20%): R$ ${sinal.toFixed(2).replace('.', ',')}
+`;
+
+      if (cot > 0) {
+        conteudoArquivo += `Total em US$: $${(totalFinal / cot).toFixed(2)} (cotação: R$ ${cot.toFixed(2)})\n`;
+      }
+
+      conteudoArquivo += `
+=================================================
+Simulação gerada em: ${new Date().toLocaleString('pt-BR')}
+Residencial Berkenbrock - Cachoeira do Bom Jesus - Florianópolis - SC
+Contato: Norberto Berkenbrock Filho - +55 48 9 9960 6725
+`;
+
+      // Criar e baixar arquivo
+      const nomeArquivo = `Simulacao_${nome.replace(/\s+/g, '_')}_${startDateStr.replace(/-/g, '')}.txt`;
+      const blob = new Blob([conteudoArquivo], { type: "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = nomeArquivo;
+      a.click();
+    };
+
+    // Validação de pessoas
+    document.getElementById("numPeople").addEventListener("input", function() {
+      if (+this.value > 6) {
+        document.getElementById("erroPessoas").style.display = "block";
+        this.value = 6;
+      } else {
+        document.getElementById("erroPessoas").style.display = "none";
+      }
+    });
+
+  });
+</script>
+
+</body>
+</html>
