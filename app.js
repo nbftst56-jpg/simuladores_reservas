@@ -11,7 +11,11 @@ const pages = {
   func2: () => `
     <h1>Função 2</h1>
     <button onclick="alert('Função 2 executada!')">Executar</button>
-  `
+  `,
+  func3: () => `
+    <h1>Função 3</h1>
+    <button onclick="alert('Função 3 executada!')">Executar</button>
+    
   // Adicione mais funções aqui
 };
 
