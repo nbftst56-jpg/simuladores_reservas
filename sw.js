@@ -11,8 +11,8 @@ const urlsToCache = [
   '/style.css',
   '/app.js',
   '/manifest.json',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/images/icon-192x192.png',
+  '/images/icon-512x512.png'
 ];
 
 // 1. Evento de Instalação: Salva todos os nossos arquivos no cache
@@ -42,3 +42,4 @@ self.addEventListener('fetch', (event) => {
   );
 
 });
+
